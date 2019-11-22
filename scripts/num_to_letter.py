@@ -40,7 +40,7 @@ def to_letter2(num, letter = ""):
     if num > 25:
         rel, mod = divmod(num, 26)
         rel -= 1
-        return to_letter(rel, map.get(mod) + letter)
+        return to_letter2(rel, map.get(mod) + letter)
     else:
         return map.get(num) +  letter
 
