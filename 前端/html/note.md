@@ -1,7 +1,7 @@
 ## html
 ### 基础
 1. 块级元素和内联元素，块级元素会出现在新的一行
-2. 空元素，只有一个标签来表示插入一些东西，例```<img>```
+2. 空元素，只有一个标签来表示插入一些东西，例```<img>```，不需要关闭
 3. head 头部信息
     1. title
     2. 元数据 ```<meta>``` 描述数据的数据
@@ -41,4 +41,50 @@
 2. 音频和视频 video audio
 3. 嵌入其他内容，iframe
 4. 矢量图： 包含图形和路径的定义，svg格式，放大不失真； 位图：每个像素的位置和色彩信息，放大后会失真
-5. 
+### 表格
+    - table标签
+    - caption 标题
+    - tr table row 一行标签
+    - td table data 具体的单元格内容
+    - th 可替换td,作为表头，table header, 
+    - 属性包含： rowspan 跨几行， colspan 跨几列
+    - colgroup 放在table开始处，可以为每列设置属性，包含col标签，数量与正常列相同（可以使用span）
+### 表单
+1. form:
+   - action: url
+   - method: HTTP method
+2. 基础部件 widget：
+    - label 属性for，指向对应部件的id, 点击标签可以激活相应部件
+    - input type 类型 提交时候会进行校验 value默认值，placeholder背景字
+    - 自动补全输入框， datalist-> option, input list属性关联到datalist id
+    - 可选框
+        - 单选框  ```<input type="radio">```
+        - 复选框  ```<input type="checkbox">```
+    - textarea
+    - select 选择框， select -> option, 多选框：multiple属性
+    - button
+        - submit 将表单数据发送到服务器。
+        - reset 将所有表单小部件重新设置为它们的默认值。
+        - anonymous 没有自动生效的按钮，但是可以使用JavaScript代码进行定制。
+    - fieldset, lengend标签
+        ```<fieldset>元素是一种方便的用于创建具有相同目的的小部件组的方式，出于样式和语义目的。 你可以在<fieldset>开口标签后加上一个 <legend>元素来给<fieldset> 标上标签。 <legend>的文本内容正式地描述了<fieldset>里所含有部件的用途。```
+3. 高级部件
+   - 数字 ```<input type="number" name="age" id="age" min="1" max="10" step="2">```
+   - 滑块 ```<input type="range" name="beans" id="beans" min="0" max="500" step="10">```
+   - 日期时间选择器 ```<input type="datetime-local" name="datetime" id="datetime">``` 支持min,max
+        - 本地时间 type="datetime-local"
+        - 月 type="month"
+        - 时间 type="time"
+        - 星期 type="week"
+    - 文件选择器 ```<input type="file" name="file" id="file" accept="image/*" multiple>```
+    - 隐藏内容 type="hidden"
+    - 图像按钮 type="image"
+    - 进度条和仪表  progress meter
+4. 部件通用属性(表单)
+   
+属性 | 默认值 | 描述
+:-:|:-:|:-: 
+autofocus | flase | 自动具有输入焦点，只有一个可以设置
+disabled | false | 不能与元素交互
+name | | 元素的名称;这是跟表单数据一起提交的。
+value | | 元素的初始值。
