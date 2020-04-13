@@ -46,3 +46,11 @@ id 选择器 | 具有特定id的元素  | #my-id
    - padding box: 包围在内容区域外部的空白区域； 大小通过 padding 相关属性设置
    - border box: 边框盒包裹内容和内边距。大小通过 border 相关属性设置。
    - margin box: 这是最外面的区域，是盒子和其他元素之间的空白区域。大小通过 margin 相关属性设置
+2. 列表样式 [list-style-type](https://developer.mozilla.org/zh-CN/docs/Web/CSS/list-style-type)
+3. 样式化链接
+   - Link 未访问 :link
+   - Visited 已经访问 :visited
+   - Hover 鼠标悬停 :hover
+   - Focus 选中 :focus
+   - Active 激活状态 (比如被点击的时候) :active
+   - 添加顺序 LOVE FEARS HEAT  -> link visited focus hover active
