@@ -38,3 +38,11 @@ id 选择器 | 具有特定id的元素  | #my-id
     - inherit 开启继承
     - initial 设置属性值和浏览器默认样式相同。如果浏览器默认样式中未设置且该属性是自然继承的，那么会设置为 inherit 。
     - unset 将属性重置为自然值，也就是如果属性是自然继承那么就是 inherit，否则和 initial一样
+#### 2. 盒子模型
+![avator](image/box.png)
+
+1. 组成部分
+   - content box：这个区域是用来显示内容，大小可以通过设置 width 和 height.
+   - padding box: 包围在内容区域外部的空白区域； 大小通过 padding 相关属性设置
+   - border box: 边框盒包裹内容和内边距。大小通过 border 相关属性设置。
+   - margin box: 这是最外面的区域，是盒子和其他元素之间的空白区域。大小通过 margin 相关属性设置
