@@ -93,3 +93,42 @@ id 选择器 | 具有特定id的元素  | #my-id
    - Focus 选中 :focus
    - Active 激活状态 (比如被点击的时候) :active
    - 添加顺序 LOVE FEARS HEAT  -> link visited focus hover active
+
+### 布局
+####  正常布局流 即盒子模型
+#### 弹性盒子 flex
+ 1. 作用： 
+   - 在父内容里面垂直居中一个块内容
+   - 使容器的所有子项占用等量的可用宽度/高度，而不管多少宽度/高度可用 
+   - 使多列布局中的所有列采用相同的高度，即使他们包含的内容量不同
+![avator](image/flex.png)
+
+2. 自动换行： flex-wrap: wrap
+3. 缩写 flex-flow: row wrap;
+4. 尺寸 flex:1 表示每个flex项沿主轴的可用空间大小。 全部一样则等分， flex: 200px; 表示最小是200px
+5. align-items: 控制flex在交叉轴方向对其
+   - stretch 交叉轴方向拉伸填充父容器
+   - center 居中对齐
+6. justify-content: 控制flex项在主轴的位置
+   - flex-start， 主轴开始处
+   - flex-end 结尾处
+   - center 居中
+   - space-around 均匀分布，两端都留有一点空间
+   - space-between 均匀分布，两端不留空间
+7. 排序 order 默认是0， 值越大越靠后
+
+#### 网格布局 grid
+#### 浮动布局 float
+#### 定位 
+   - 静态定位 将元素放入它在文档布局流中的正常位置 static默认行为
+   - 相对定位 relative, top left bottom right等属性，相对于原本的位置
+   - 绝对定位 absolute 指定元素应距离每个包含元素的边的距离，而不是指定元素应该移入的方向。
+   - 定位上下文  包含元素为定义了position属性的父元素，如果都没显示的定义，则包含在初始块容器
+   - 固定定位 fixed，固定定位固定元素则是相对于浏览器视口本身，可用于导航栏
+   - 粘性定位 sticky， 开始是相对定位，当滚动到某个阈值，变为固定定位
+#### 多列布局
+1. column-count: n; n个列
+2. column-width: 200px; 宽度
+3. column-gap: 20px; 间隔
+4. column-rule: 规则，包含间隔的大小形状颜色， column-rule: 4px dotted rgb(79, 185, 227);
+5. break-inside: avoid; 不分开单词
