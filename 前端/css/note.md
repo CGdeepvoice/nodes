@@ -14,13 +14,13 @@ id 选择器 | 具有特定id的元素  | #my-id
 伪类选择器  | 特定状态下的特定元素 | a.hover 鼠标悬停在a标签上时
 
 使用：
-    - 元素选择器 ```a.id```
-    - 元素，元素 a, p   a和p
-    - 元素 元素  ul li   li在ul内部
-    - 元素 + 元素 h1 + p   h1和相邻的一个p元素
-    - 规则： @rules
-        - ```@import 'styles2.css'```
-        - ```@media(min-width: 30em){body {color: "blue"}}```  媒体查询， 当浏览器宽度小于30em, 则显示蓝色
+   - 元素选择器 ```a.id```
+   - 元素，元素 a, p   a和p
+   - 元素 元素  ul li   li在ul内部
+   - 元素 + 元素 h1 + p   h1和相邻的一个p元素
+   - 规则： @rules
+      - ```@import 'styles2.css'```
+      - ```@media(min-width: 30em){body {color: "blue"}}```  媒体查询， 当浏览器宽度小于30em, 则显示蓝色
  
 速记属性： font, background, padding, border, margin 等，可以在一行设置多个值
 例如： padding: 10px 15px 15px 5px;  top right bottom left
@@ -39,7 +39,7 @@ id 选择器 | 具有特定id的元素  | #my-id
     - initial 设置属性值和浏览器默认样式相同。如果浏览器默认样式中未设置且该属性是自然继承的，那么会设置为 inherit 。
     - unset 将属性重置为自然值，也就是如果属性是自然继承那么就是 inherit，否则和 initial一样
 ### 2. 盒子模型
-![avator](image/box.png)
+![avator](images/box.png)
 
 1. 组成部分
    - content box：这个区域是用来显示内容，大小可以通过设置 width 和 height.
@@ -73,7 +73,7 @@ id 选择器 | 具有特定id的元素  | #my-id
    - none 防止转型
    - uppercase 大写
    - lowercase 小写
-   - capitallize 首字母答谢
+   - capitallize 首字母大写
    - full-width 全角
 6. 装饰 text-decoration
    - none 取消已存在的文本装饰
@@ -101,7 +101,7 @@ id 选择器 | 具有特定id的元素  | #my-id
    - 在父内容里面垂直居中一个块内容
    - 使容器的所有子项占用等量的可用宽度/高度，而不管多少宽度/高度可用 
    - 使多列布局中的所有列采用相同的高度，即使他们包含的内容量不同
-![avator](image/flex.png)
+![avator](images/flex.png)
 
 2. 自动换行： flex-wrap: wrap
 3. 缩写 flex-flow: row wrap;
