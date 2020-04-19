@@ -23,3 +23,27 @@
    - 自动转换: 将取值范围小的类型自动提升为取值范围大的类型
    - 强制转换: 将取值范围大的类型强制转换成取值范围小的类型 格式: 数据类型 变量名 = （数据类型） 被转数据值
    - ASCII码表
+### 数组
+1. 定义
+   - int[] arr = new int[3];
+   - int[] arr = new int[]{1, 2, 3, 4};
+   - int[] arr = {1, 2, 3, 4};
+2. java内存划分
+  
+区域名称 | 作用
+:-: | :-:
+寄存器| cpu使用
+本地方法栈| jvm在使用操作系统功能时候使用
+方法区| 存储可以运行的class文件
+堆内存| 存储对象或者数组，new来创建的，都存储在堆内存
+方法栈|方法运行时使用的内存，比如main方法运行。
+
+![avator](images/内存占用.png)
+
+#### IDEA
+1. project -> module -> package -> javaClass
+2. psvm  == public static void main(String[] args){} 
+3. 5.fori == for (int i = 0; i < 5; i++){}
+4. array.fori  for(int i=0; i < array.length; i++){}
+5. alt + enter 导入包，自动修正代码
+6. Ctrl+Alt+L 格式化代码
