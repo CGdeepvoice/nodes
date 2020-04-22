@@ -47,3 +47,18 @@
 4. array.fori  for(int i=0; i < array.length; i++){}
 5. alt + enter 导入包，自动修正代码
 6. Ctrl+Alt+L 格式化代码
+7. ctrl+N 自动化生成getter、setter以及constructor 
+
+#### 面向对象
+1. 类与对象的内存占用
+![avator](images/对象内存图.png)
+
+成员变量有默认值，局部变量没有默认值。
+2. JavaBean 编写类的一种标准规范。
+   ```java
+    public class ClassName{ //成员变量
+   //构造方法 //无参构造方法【必须】 //有参构造方法【建议】 //成员方法
+   //getXxx()
+   //setXxx()
+   }
+   ```
