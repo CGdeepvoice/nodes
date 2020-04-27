@@ -62,3 +62,62 @@
    //setXxx()
    }
    ```
+#### 常用API
+1. Scanner 获取输入项
+   ```java
+   import java.util.Scanner;
+   public class TestScanner(){
+      public static void main(String[] args){
+         Scanner sc = new Scanner(System.in);
+         int x = sc.nextInt();
+
+         new Scanner(System.in).nextInt(); // 匿名对象
+      }
+   }
+   ```
+2. Random 随机数
+   ```java
+   import java.util.Random;
+   public class TestRandom{
+      public static void main(String[] args){
+         Random r = new Random(); // 创建一个随机数生成器
+         int x = r.nextInt(100); //获取一个0-100的随机数，其中不包括100
+      }
+   }
+   ```
+3. ArrayList 大小可变的数组， 存储在内的数据为元素。
+   - 构造方法 ArrayList<String> list = new ArrayLiat<>();
+   - 添加  public boolean add(E e)
+   - 删除  public E remove(int index)
+   - 获取  public E get(int index)
+   - 元素数量 public int size()
+4. String string对象不可变，每次修改都会赋值新的地址
+   - 比较 s1.equals(s2);   忽略大小写比较 s1.equalsIgnoreCase(s2);
+   - s.length() 获取长度
+   - s.concat(s2) 连接
+   - s.charAt(1) 获取索引位置的值
+   - s.indexOf("ol") 第一次出现的索引位置，找不到为-1
+   - s.substring(int beginIndex, int endIndex) 返回子串, 左闭右开
+   - s.toCharArray()  转为字符数组
+   - s.getBytes()  返回字节数组
+   - s.replace(CharSequence target, CharSequence replacement)
+   - s.spilit(String regex) 分割字符串，返回字符串数组
+
+5. static 用来修饰的成员变量和成员方法，被修饰的成员是属于类的，而不是单单是属 于某个对象的。也就是说，既然属于类，就可以不靠创建对象来调用了。
+   1. 类变量 static int numberId; 所有对象共享同一个类变量的值，这个值保存在类的空间中，不在对象里
+   2. 静态方法 格式： ```修饰词 static 返回值类型 方法名 （参数列表）{}```,调用直接从类调用。
+   3. 静态代码块  定义在成员位置，使用static修饰的代码块{ }。随着类的加载而执行且执行一次，优先于main方法和构造方法的执行。
+   
+   ```java
+   public class Game{
+      public static int num;
+      public static ArrayList<String>  list;
+      static{
+         number = 2;
+         list = new ArrayList<String>();
+         list.add("222");
+      }
+   }
+   ```
+
+   ![avator](images/静态原理图解.jpg)
