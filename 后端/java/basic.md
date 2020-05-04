@@ -211,4 +211,90 @@
    1. class 作为成员变量
    2. interface 作为成员变量
    3. interface作为方法参数和返回值类型
-   4. 
+#### Object类，常用的API
+1. Object类
+   1. java.lang.Object类是java语言的根类，如果一个类没有特别指定父类，则默认继承自Object类。
+   2.  toString(), 返回该对象的字符串表示，重写
+   3.  equals() 表示其他某个对象是否相等。 public booleam equals(Object obj),默认比较地址，可重写
+   4. 上面可以直接通过IDEA Generate来自动生成
+2. 日期时间类
+   1. Date类
+      - 构造方法 new Date() 当前时间。 new Date(long date); 分配Date对象并初始化此对象，以表示自从标准基准时间（称为“历元（epoch）”，即1970年1月1日00:00:00 GMT）以来的指定毫秒数。
+   2. DateFormat类
+      - 格式化时间日期。可以完成Date对象和String对象之间的来回转换
+      - 格式化: Date对象转换为String对象 ft.format(data)。 解析:String对象转换为Date对象 ft.parse(str)
+      - 构造方法SimpleDateFormat(String pattern)
+3. Calendat类
+   1. 日历类，替换Date部分方法。 public static Calendar getInstance(). 获取日历
+   2. 常用方法
+      - public int get(int field) 返回指定日历字段的值
+      - public void set(int field, int value)
+      - public abstract void add(int field, int amount) 增减时间量
+      - public Date getTime() 返回Date对象
+   
+   日历字段:
+
+   字段值|含义
+   :-:|:-:
+   YEAR|年
+   MONTH|月 从0开始
+   DAY_OF_MONTH|月中的第几天(几号)
+   HOUR|时(12小时制)
+   HOUR_OF_DAY|时(24小时制)
+   MINUTE|分
+   SECOND|秒
+   DAY_OF_WEEK|周几
+
+4. System类
+   1. public static long currentTimeMillis(), 返回以毫秒为单位的当前时间。
+   2. public static void arraycopy(Object src, int srcPos, Object dest, int destPos, int length) 将数组中指定的数据拷贝到另一个数组。
+
+5. StringBuilder类
+   1. 由于String类的对象内容不可改变，每当字符串进行拼接时候，总会在内存中创建新的对象。StringBuilder称为可变字符序列，类似于String的字符串缓冲区，可以改变序列的长度和内容，即可以解决String操作带来的损耗问题
+   2. 构造方法: 
+      - public StringBuilder() 构造一个空的StringBuilder容器
+      - public StringBuilder(String str) 构造一个StringBuilder容器，并将字符串添加进去。
+   3. 常用方法
+      - public StringBuilder append()  添加任意类型数据的字符串形式，并返回当前对象自身
+      - public String toString() 将当前的StringBuilder对象转换为String对象
+6. 包装类
+   1. Java提供了两个类型系统，基本类型与引用类型，使用基本类型在于效率，然而很多情况，会创建对象使用，因为对象可以做更多的功能，如果想要我们的基本类型像对象一样操作，就可以使用基本类型对应的包装类，如下：
+   
+   | 基本类型    | 对应的包装类（位于java.lang包中） |
+   | ------- | --------------------- |
+   | byte    | Byte                  |
+   | short   | Short                 |
+   | int     | **Integer**           |
+   | long    | Long                  |
+   | float   | Float                 |
+   | double  | Double                |
+   | char    | **Character**         |
+   | boolean | Boolean               |
+
+   2. 装箱和拆箱
+      1. 装箱 从基本类型转换为对应的包装类对象
+      2. 拆箱 从包装类对象转换为对应的基本类型
+      ```java
+      Integer i = new Integer(4); //使用构造函数
+      Integer ii = Integer.valueOf(4); // 使用包装类的方法
+      Integer iii = 100; // 自动装箱
+      
+      int num = i.intValue(); // 拆箱
+      int num2 = i; // 自动拆箱
+      ```
+   3. 自动装箱和自动拆箱
+      ```java
+      Integer i = 4; // 自动装箱
+      i = i + 5; // 等号右边，将i对象转换为基本数值(自动拆箱)， i.intValue + 5; 加法完成之后，再次装箱，把基本数值转换为对象
+      ```
+   4. 基本类型和字符串的转换
+      1. 基本类型转String,  基本类型 + ""
+      2. String转换为基本类型  parseXxx
+         - public static byte parseByte(String s)
+         - public static short parseShort(String s)
+         - public static int parseInt(String s)
+         - public static long parseLong(String s)
+         - public static float parseFloat(String s)
+         - public static double parseDouble(String s)
+         - public static boolean parseBoolean(String s)
+      3. 如果字符串参数内容无法正确转换为对应的基本类型，会抛出 ```java.lang.NumberFormatException```异常
