@@ -298,3 +298,123 @@
          - public static double parseDouble(String s)
          - public static boolean parseBoolean(String s)
       3. 如果字符串参数内容无法正确转换为对应的基本类型，会抛出 ```java.lang.NumberFormatException```异常
+
+#### 集合Collection、泛型
+1. 集合按照存储结构分为：单列集合 java.util.Collection和双列集合java.util.Map
+2. Collection: 单列集合类的根接口，用于存储一系列符合某种规则的元素。有两个重要的子接口：
+   - java.util.List List特点是有序、元素可重复。主要实现类有java.util.ArrayList、java.util.LinkedList。
+   - java.util.Set  Set的特点是元素无需，且不可重复。主要实现类有java.util.HashSet,java.util.TreeSet。
+3. Collection常用功能:
+   - public boolean add(E e)  给定的对象添加到当前集合中
+   - public void clear()  清空集合中的所有元素
+   - public boolean remove(E e) 在当前的集合中删除给定的对象
+   - public boolean contains(E e) 判断当前的集合中是否包含给定的对象
+   - public boolean isEmpty() 判断当前的集合是否为空
+   - public int size()  返回集合中元素的个数
+   - public Object[] toArray() 把集合中的元素存储到数组中
+
+#### Iterator迭代器
+1. Iterator接口 Iterator主要用于迭代访问(遍历)Collection中的元素，因此Iterator对象也被成为迭代器。
+2. public Iterator iterator() 获取集合对应的迭代器，用来遍历集合中的元素。
+3. public E next() 返回迭代的下一个元素
+4. public boolean hasNext() 如果仍有元素可以迭代，则返回true
+5. foreach 
+   ```java
+   for(元素数据类型 变量 : Collection集合或者数组){
+      //
+   }
+   ```
+
+#### 泛型
+1. 泛型:可以在类或方法中预支地使用未知的类型。 
+   ```java
+   Collection<String> list = new ArrayList<String>();
+   // 这里的 <String> 成为泛型
+   ```
+2. 一般在创建对象时，将未知的类型确定具体的类型。当没有指定泛型时，默认类型为Object类型。
+3. 定义和使用
+   1. 含有泛型的类，定义格式 ```修饰符 class 类名<代表泛型的变量> {}```
+   ```java
+   Class ArrayList<E>{
+      public boolean add(E e){}
+      public E get(int index){}
+   }
+   // 在创建对象的时候确定泛型
+   ArrayList<String> list = new ArrayList<>();
+   // 此时的ArrayList可以理解为
+   class ArrayList<String> {
+      public boolean add(String e){}
+      public String get(int index){}
+   }
+   ```
+   2. 含有泛型的方法 定义格式 ```修饰符 <代表泛型的变量> 返回值类型 方法名(参数){}
+   ```java
+   public class MyGenericMethod{
+      public <MVP> void show(MVP mvp){
+         System.out.println(mvp.getClass);
+      }
+      public <MVP> MVP show2(MVP mvp){
+         return mvp;
+      }
+   }
+   public class GenericMehodDemo{
+      public static void main(String[] args){
+         MyGenericMethod mm = new MyGenericMethod();
+         mm.show("aaa");
+         mm.show(123);
+         mm.show(123.142);
+      }
+   }
+   ```
+   3. 含有泛型的接口 定义格式 ```修饰词 interface接口名<代表泛型的变量>{}```
+   ```java
+   public interface MyGenericInterface<E>{
+      public abstract void add(E e);
+      public abstract E getE();
+   }
+   // 1. 定义时候确定泛型的类型
+   public class MyImp1 implements MyGenericInterface<String> {
+      @Override
+      public void add(String e){
+         //
+      }
+      @Override
+      public String getE(){
+         return null;
+      }
+   }
+   // 2. 始终不确定泛型的类型，直到创建对象时候，确定泛型的类型
+   public class MyImp2<E> implements MyGenericInterface<e>{
+      @Override
+      public void add(E e){}
+      @Override
+      public E getE(){
+         return null;
+      }
+   }
+   // 使用
+   public class GenericInterface{
+      public static void main(String[] args){
+         MyImp2<String> my = new MyImp2<String>();
+         my.add("aaa");
+      }
+   }
+   ```
+   4. 泛型通配符：不知道使用什么类型来接收的时候,此时可以使用?,?表示未知通配符。
+   ```java
+   public static void main(String[] args) {
+    Collection<Intger> list1 = new ArrayList<Integer>();
+    getElement(list1);
+    Collection<String> list2 = new ArrayList<String>();
+    getElement(list2);
+   }
+   public static void getElement(Collection<?> coll){}
+   //？代表可以接收任意类型
+   ```
+   - 通配符高级使用----受限泛型
+     - **泛型的上限**：
+       - **格式**： `类型名称 <? extends 类 > 对象名称`
+       - **意义**： `只能接收该类型及其子类`
+     - **泛型的下限**：
+       - **格式**： `类型名称 <? super 类 > 对象名称`
+       - **意义**： `只能接收该类型及其父类型`
