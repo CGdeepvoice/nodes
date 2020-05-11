@@ -473,3 +473,69 @@
    1. 定义Thread类的子类，并重写该类的run()方法，该run()方法的方法体就代表了线程需要完成的任务,因此把 run()方法称为线程执行体。
    2. 创建Thread子类的实例，即创建了线程对象   
    3. 调用线程对象的start()方法来启动该线程
+5. 多线程原理： 每一个执行线程都有自己所属的栈内存空间
+6. Thread类，java.util.Thread
+   **构造方法:**
+   - public Thread() 分配一个新的线程对象
+   - public Thread(String name) 分配一个带有指定名字的线程对象
+   - public Thread(Runnable target) 分配一个带有指定目标新的线程对象
+   - public Thread(Runnable target, String name)
+
+   **常用方法:**
+   - public String getName() 获取当前线程名称
+   - public void start() 此线程开始执行，jvm调用此线程的run方法
+   - public void run() 要执行的代码段
+   - public static void sleep(long millis)
+   - public static Thread currentThead 当前线程的引用
+7. 创建方法： 一种是继承Thread类，第二种是实现Runnable方法，如下
+   - 定义Runnable接口实现类，重写run方法
+   - 创建Runnable实现类的示例，并以此实例作为Thread的target，此Thread才是真正的线程对象
+   - 调用线程的start方法启动线程
+
+   **实现Runnable接口比继承Thread的优势**:
+   - 适合多个相同的程序代码的线程去共享同一个资源
+   - 可以避免java单继承的局限性
+   - 增加程序的健壮性，解耦操作，代码可以被多个线程共享，代码和线程独立
+   - 线程池只能放入实现Runnable或者Callable的类线程，不能直接放入继承Thread的类。
+
+#### 线程安全
+1. 多个线程同时对全局变量或者静态变量进行写操作，需要线程同步。
+2. 线程同步 synchronized,三种方法
+   - 同步代码块
+   - 同步方法
+   - 锁
+3. 同步代码块， synchronized(同步锁){} 表示只对这个区块的资源实行互斥访问。
+4. 同步方法 public synvhronized void method(){}
+5. Lock锁
+6. 线程状态
+   
+   线程状态|导致状态发生条件
+   :-:|:-:
+   NEW|线程被创建，未启动，没有调用start方法
+   Runnable|线程可以在java虚拟机中运行的状态，可能正在运行自己代码，也可能没有这取决于操作系统处理器。
+   Blocked(阻塞)|当一个线程试图去获取一个对象锁，而该对象锁被其他线程持有，则该线程进入blocked状态，当该线程获取的锁时，变为Runnable
+   Waiting(无限等待)|一个线程在等待另一个线程执行一个(唤醒)动作时，该线程进入Waiting状态。进入这个状态后是不能自动唤醒的，必须等待另一个线程调用notify或者notifyAll方法才能够唤醒。
+   Timed Waiting(计时等待)| 同Waiting状态，超时可自动唤醒。
+   Teminated(终止)|run正常退出，或者因为没有捕获的异常终止而退出
+
+   ![avator](images/线程状态.jpg)
+
+#### 线程池
+其实就是一个容纳多个线程的容器，其中的线程可以反复使用，省去了频繁创建线程对象的操作，无需反复创建线程而消耗过多资源。
+```java
+ExecutorService service = Executors.newFixedThreadPool(2);
+MyRunnable r = new MyRunnable();
+service.submit(r);
+service.submit(r);
+service.submit(r);
+service.shutdown();
+```
+#### lambda
+1. (参数类型 参数名称) -> {代码}
+2. 省略规则
+   - 小括号内的参数类型可以省略
+   - 如果小括号内有且仅有一个参数，则小括号可以省略
+   - 如果大括号内有且仅有一个语句，则无论是否有返回值，都可以省略大括号，return关键字以及语句分号
+3. 使用lambda的前提
+   - 使用lambda必须具有接口，且接口内有且仅有一个抽象方法（函数式接口）
+   - 使用Lambda必须具有上下文推断。
