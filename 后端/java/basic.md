@@ -654,3 +654,27 @@ service.shutdown();
    - public BufferedInputStream(InpurtStream in)
    - public BufferedOutputStream(OutputStream out)
    - 读写方法与基本流相同
+2. 字符缓冲流
+   - public BufferedReader(Reader in)
+   - public BufferedWriter(Writer out)
+   - 特有方法:
+     - public String readLine() 读一行
+     - public void newLine() 写一行行分隔符
+#### 序列化
+1. 用一个字节序列可以表示一个对象，该字节序列包含了对象的数据，对象的类型和对象中存储的属性，这个过程为序列化。反序列化时从文件 中读取出来，重新加载为对象
+2. ObjectOutputStream, 将java对象从原始数据类型写出到文件，实现对象的持久化
+   - public ObjectOutputStream(OutputStream out)
+   - 要求： 1.该类实现了java.io.Serializable 2.所有属性必须时可序列化的
+   - public final void writeObject(Object obj) 写出
+3. ObjectInputStream
+   - public ObjectInputStream(InputStream in)
+   - public final Object readObject()
+
+#### 打印流
+1. PrintStream
+2. public PrintStream(String fileName)
+   ```java
+      PrintStream ps = new PrintStream("ps.txt");
+      System.setOut(ps);
+      System.out.println(97);
+   ```
