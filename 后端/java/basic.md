@@ -538,4 +538,119 @@ service.shutdown();
    - 如果大括号内有且仅有一个语句，则无论是否有返回值，都可以省略大括号，return关键字以及语句分号
 3. 使用lambda的前提
    - 使用lambda必须具有接口，且接口内有且仅有一个抽象方法（函数式接口）
-   - 使用Lambda必须具有上下文推断。
+   - 使用Lambda必须具有上下文推断。‘
+
+#### File
+1. java.io.File 文件和目录路径的抽象
+2. 构造方法：
+   1. public File(String pathname)
+   2. public File(String pathname, String child)
+   3. public File(File parent, String child)
+3. 常用方法
+   1. get
+      - public String getAbsolutePath(): 返回绝对路径名字符串
+      - public String getPath() 将File转换为路径名字符串
+      - public String getName() 返回此File表示的文件或者目录的名字
+      - public long length() 返回文件的长度
+   2. 判断
+      - public boolean exists() 是否存在
+      - public boolean isDirectory() 是否为目录
+      - public boolean isFile() 是否为文件
+   3. 创建删除
+      - public boolean createNewFile() 当且仅当文件不存在时候，创建新的文件
+      - public boolean delete() 删除由此File表示的文件或者目录
+      - public boolean mkdir() 创建由此File表示的目录
+      - public boolean mkdirs() 创建由此File表示的目录，包括任何必需但不存在的父目录。
+   4. 遍历
+      - public String[] list() 所有子文件或者目录
+      - public File[] listFile() 所有子文件或者目录
+
+#### IO
+1. 数据的传输是一种数据的流动，称为数据流， JAVA中的IO操作指的是使用java.io的内容进行输入输出操作。
+2. 分类：
+   1. 数据的流向：
+      - 输入流： 把数据从其他设备读取到内存中的流
+      - 输出流： 把数据从内存中写出到其他设备的流
+   2. 数据格式:
+      - 字节流： 以字节为单位，读写数据的流
+      - 字符流： 以字符为单位，读写数据的流
+
+   |输入流|输出流
+   :-:|:-:|:-:
+   字节流|InputStream|OutputStream
+   字符流|Reader|Writer
+
+3. 字节流
+   1. OutputStream:
+      - public void close()
+      - public void flush() 强制刷新输出流，并强制写出缓冲区的输入字节
+      - public void write(byte[] b) 将 b.length字节从指定的字节数组写入此输出流。
+      - public void write(byte[] b, int off, int len) :从指定的字节数组写入 len字节，从偏移量 off开始输出到此输出流。
+      - public abstract void write(int b) :将指定的字节输出流。
+   2. FileOutputStream:
+      - public FileOutputStream(File file)
+      - public FileOutputStream(File file，boolean append)
+      - public FileOutputStream(String filename)
+      - public FileOutputStream(String filename, boolean append)
+      - write(int b) 写出一个字节
+      - write(byte[] b)
+      - write(byte[] b, int off, int len)写出指定长度字节数组
+
+   3. InputStream:
+      - public void close()
+      - public abstract int read() 从输入流读取数据的下一个字节
+      - public int read(byte[] b)
+   4. File  FileInputStream:
+      - FileInputStream(File file)
+      - FileInputStream(String filename)
+4. 字符流
+   - 使用字节流读取文件时，可能会遇到问题，比如中文字符会显示不完整。因为一个中文字符占了多个字节空间。（UTF-8编码一个中文占三个字节，Unicode一个中文两个字节，所以每次读取一个字节无法显示中文），所以提供了字符流，以字符为单位进行读写数据。
+   1. Reader  读取字符信息到内存
+      - public void close()
+      - public int read()  从输入流读取一个字符
+      - public int read(char[] cbuf)
+   2. FileReader
+      - FileReader(File file)
+      - FileReader(String filename)
+      - read() 读取一个字符，文件末尾是-1
+      - public int read(char[] cbuf)
+   3. Writer 将指定的字符信息写出到目的地
+      - void write(int c)写入单个字符
+      - void write(char[] cbuf)
+      - abstract void write(char[] cbuf, int offset, int len)
+      - void write(String str)
+      - void write(String str, int off, int len)
+      - void flush()
+      - void close()
+   4. FileWrite
+      - FileWrite(File file)
+      - FileWrite(File file， boolean true)
+      - FileWrite(String filename)
+      - FileWrite(String filenamem, boolean true)
+      - write(int b) 每次写出一个字符数据
+      - write(String str)
+5. try
+   ```java
+   FileReader fr = new FileReader("in.txt");
+   FileWriter fw = new FileWriter("out.txt");
+   try(fr; fw){  // 完成后会自动close()
+      //
+   } catch(IOException e){
+      //
+   }
+   ```
+#### 属性集
+1. java.util.Properties 继承自Hashtable
+2. public Properties() 创建空的属性列表
+3. 存储：
+   - public Object setProperty(String key, String value)
+   - public String getProperty(String key)
+   - public Set<String> stringPropertyNames() 获取所有的键名集合
+4. public void load(InputStream inStream) 从字节输入流中读取键值对
+
+#### 缓冲流
+   - 缓冲流是对4个基本的Filexxxx流的增强 分为字节缓冲流 **BufferedInputStream**, **BufferedOutputStream**, 字符缓冲流**BufferedReader**, **BufferedWriter**
+1. 字节缓冲流
+   - public BufferedInputStream(InpurtStream in)
+   - public BufferedOutputStream(OutputStream out)
+   - 读写方法与基本流相同
