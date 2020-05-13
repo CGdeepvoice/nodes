@@ -678,3 +678,25 @@ service.shutdown();
       System.setOut(ps);
       System.out.println(97);
    ```
+
+#### 网络编程
+1. Socket 客户端的套接字， ServerSocket服务器的套接字
+2. Socket: 
+   - public Socket(String host, int port) 创建套接字对象并连接
+   - public InputStream getInputStream() 返回套接字的输入流
+   - public OutputStream getOutputStream() 返回套接字的输出流
+   - public void close() 关闭套接字
+   - public void shutdownOutput() 禁用套接字的输出流
+
+3. ServerSocket:
+   - public ServerSocket(int port)
+   - public Socket accept() 侦听并接受连接
+
+#### 函数式接口
+1. 有且只有一个抽象方法的接口叫做抽象接口
+2. @FunctionalInterface 
+3. 常见的函数式接口:
+   - java.util.function.Supplier<T>  T get()
+   - java.util.function.Consumer<T>  void accept(T t)  默认方法 andThen
+   - java.util.function.Predicate<T> boolean test(T t) 默认方法 and or negate(非)
+   - java.util.function.Function<T, R>  R apply(T t)
