@@ -700,3 +700,19 @@ service.shutdown();
    - java.util.function.Consumer<T>  void accept(T t)  默认方法 andThen
    - java.util.function.Predicate<T> boolean test(T t) 默认方法 and or negate(非)
    - java.util.function.Function<T, R>  R apply(T t)
+  
+#### Stream 流
+1. 获取流 java.util.stream.Stream<T>
+   1. 所有的Collection 都可以通过stream默认方法获取流
+   2. Stream接口的静态方法of可以获取数组对应的流
+2. 常用方法 中间操作和终结方法:
+   1. void forEach(Consumer<? super T> action)
+   2. Stream<T> filter(Predicate<? super T> predicate)
+   3. <R> Stream<R> map(Function<? super T, ? extents R>mapper)
+   4. long count()
+   5. Stream<T> limit(long maxSize)
+   6. Stream<T> skip(long n)
+   7. static <T> Stream<T> concat(Stream<? extends T> a, Stream<? extends T> b)
+
+#### 方法引用
+1. s -> System.out.println(s);   =>    System.out::println
