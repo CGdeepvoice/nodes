@@ -575,7 +575,7 @@ service.shutdown();
       - 字节流： 以字节为单位，读写数据的流
       - 字符流： 以字符为单位，读写数据的流
 
-   |输入流|输出流
+   格式|输入流|输出流
    :-:|:-:|:-:
    字节流|InputStream|OutputStream
    字符流|Reader|Writer
