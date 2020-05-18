@@ -716,3 +716,8 @@ service.shutdown();
 
 #### 方法引用
 1. s -> System.out.println(s);   =>    System.out::println
+
+#### 基础加强
+1. Junit单元测试
+2. 反射, 运行过程中获取类并创建调用，可以提高程序的可扩展性，多用于框架
+3. 注解 @
