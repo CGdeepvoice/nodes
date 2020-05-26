@@ -721,3 +721,16 @@ service.shutdown();
 1. Junit单元测试
 2. 反射, 运行过程中获取类并创建调用，可以提高程序的可扩展性，多用于框架
 3. 注解 @
+4. java中的参数传递都是值传递，就算是传数组、对象，也是传输一个地址的复制。
+   ```java
+   public static void test(int[] array){
+      array = new int[]{123, 344};
+      //这里的array和传进来的array就不是一个对象（地址了），如果真的是传引用（地址），这里修改了，那么外面的就打印就是123， 344了。所以传进来的是值，地址的值的复制，并不是地址。
+   }
+   public static void main(String[] args){
+      int[] array = new int[]{1, 2, 3};
+      System.out.println(Arrays.toString(array)); // 打印 1, 2, 3
+      test(array);
+      System.out.println(Arrays.toString(array)); // 还是打印1， 2， 3
+   }
+   ```
