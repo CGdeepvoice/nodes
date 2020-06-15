@@ -222,3 +222,82 @@ channel.start_consuming()
     channel.basic_consume(callback, queue=queue_name, no_ack=True)
     channel.start_consuming()
     ```
+
+    2. direct
+    
+    根据routing_key进行分发
+    ![avator](images/direct.png)
+
+    ```python
+    # 生产者
+    import pika
+    credentials = pika.PlainCredentials('admin', 'admin')
+    connection = pika.BlockingConnection(pika.ConnectionParameters('192.168.0.1', 5672, '/', credentials))
+    channel = connecion.channel()
+
+    # 定义交换机名称及类型
+    channel.exchange_declare(exchange="direct_test", type='direct')
+    severity = 'info'
+    message = '123'
+
+    # 发布消息至交换机direct_test,且发布的消息携带的关键字routing_key是info
+
+    channel.basic_publish(exchange='direct_test', routing_key=severity, body=message)
+    connection.close()
+    ```
+    ```python
+    # 消费者
+    import pika
+    credentials = pika.PlainCredentials('admin', 'admin')
+    connection = pika.BlockingConnection(pika.ConnectionParameters('192.168.0.1', 5672, '/', credentials))
+    channel = connecion.channel()
+
+    # 定义exchange和类型
+    channel.exchange_declare(exchange='direct_test', type='direct')
+
+    # 生成随机队列
+    result = channel.queue_declare(exclusive=True)
+    queue_name = result.method.queue
+    severities = ['error', ]
+    for severity in severities:
+        channel.queue_bind(exchange='direct_test', queue=queue_name, routing_key=severity)
+
+    def callback(ch, method, properties, body):
+        print("[x] %r:%r"%(method.routing_key, body))
+    channel.basic_consume(callback, queue=queue_name, no_ask=True)
+    channel.start_consuming()
+    ```
+
+    3. topic
+    ```python
+    channel.exchange_declare(exchange_name, exchange_type="topic")
+    channel.queue_declare(queue_name, durable=True)
+    topics = ['user.add.test', 'user.update.test',]
+    for topic in topics:
+        channel.queue_bind(queue_name, exchange_name, routing_key=topic)
+    channel.basic_qos(prefetch_count=1) # 如果没有确认信息时，将不再向这里投递信息
+    channel.basic_consume(queue_name, callback)
+    channel.start_consume()
+    ```
+
+## AMQP协议介绍
+
+AMQP通信协议本身包含三层。
+ - Module layer：定义了供客户端调用的命令。比如queue_declare()
+ - session layer:位于中间层，负责将客户端的命令传给服务器，再将服务器的应答返回给客户端，主要为客户端和服务器之间的通信提供可靠性同步机制和错误处理
+ - transport layer 传输二进制数据流，提供帧的处理、信道复用、错误检测和数据表示等。
+
+使用了tcp协议
+
+## rabbitmq进阶
+1. 死信队列 Dead-Letter-Exchange。当消息在一个队列中变成死信，他能被重新被发送到死信队列。变成死信一般有几种情况
+
+    1. 消息被拒绝，并且设置requeue参数为false.
+    2. 消息过期
+    3. 队列达到最大长度。
+
+    当消息不能正确被消费时，置于死信队列，后续可以通过消费这个死信队列中的内容来分析当时所遇到的异常情况，进而可以改善和优化系统。
+
+2. 过期时间。 TTL time to live
+
+    1. 设置消息的
