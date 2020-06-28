@@ -32,3 +32,5 @@ sum = (a1 + an) * n / 2 = (a1 + a1+  (n-1)*d) *n /2
 8. oct(int) 10进制转8进制
 9. hex(int) 10进制转16进制
 10. 正无穷 `float('inf')` 负无穷 `-float('inf')`
+11. ord() 返回字符的asicII码
+12. chr() ASICII码转字符
