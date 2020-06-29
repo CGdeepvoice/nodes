@@ -181,6 +181,11 @@ channel.start_consuming()
                          delivery_mode = 2, # 使消息或任务也持久化存储
                       ))
         ```
+
+        这里的持久化只保证了在rabbitmq服务器内部的持久化，如果发送给消费者，但是消费者使用了AutoAck，接收到消息就发送了确认，没来得及处理就丢失了。所以要手动确认。
+
+        还有一种情况是持久化消息时，rabbitmq需要将消息从内存保存到磁盘，这个过程如果宕机可能会丢失数据。可以使用镜像队列。配置副本，主节点挂掉使用子节点恢复。
+
 4. 发布与订阅
 
 ![avator](images/rabbitmq交换机工作原理.jpg)
@@ -290,6 +295,14 @@ AMQP通信协议本身包含三层。
 使用了tcp协议
 
 ## rabbitmq进阶
+
+消息如果未能路由到队列中，如何处理：
+  1. 设置参数mandatory，并添加ReturnListener,当路由失败的时候RabbitMQ会通过调用return,生产者客户端通过ReturnListener来获取消息。
+  2. immediate，如果exchange在路由过程中发现不存在消费者，就直接返回给生产者，这个参数已经去掉。
+  3. 如果不设置mandatory，就可以使用备份交换器， AE。声明一个交换器时指定一个备份交换器，当主交换器路由失败，将消息路由到备份交换器。
+
+
+
 1. 死信队列 Dead-Letter-Exchange。当消息在一个队列中变成死信，他能被重新被发送到死信队列。变成死信一般有几种情况
 
     1. 消息被拒绝，并且设置requeue参数为false.
@@ -297,7 +310,87 @@ AMQP通信协议本身包含三层。
     3. 队列达到最大长度。
 
     当消息不能正确被消费时，置于死信队列，后续可以通过消费这个死信队列中的内容来分析当时所遇到的异常情况，进而可以改善和优化系统。
+    也需要进行绑定队列，当一个队列的消息超时会发送到dlx交换器，之后发送到dlx绑定的死信队列
+
+    ```python
+    # 声明死信交换器
+    channel.exchange_declare("dlx_exchange", "direct")
+    # 声明业务交换器
+    channel.exchange_declare("normal_exchange", "fanout")
+
+    # 声明业务队列，设置死信交换器和路由键
+    channel.queue_declare("normal_queue", durable=True, arguments={"x-dead-letter-exchange": "dlx_exchange", "x-dead-letter-routing-key": 'routingkey'})
+    # 业务队列绑定业务交换器
+    channel.queue_bind('normal_queue', "normal_exchange", "")
+
+    # 死信队列，绑定死信路由器，路由键
+    channel.queue_declare("dlx_queue", durable=True)
+    channel.queue_bind("dlx_queue", "dlx_exchange", "routingkey")
+    ```
+    
 
 2. 过期时间。 TTL time to live
 
-    1. 设置消息的
+   设置消息的过期时间，可以对队列设置统一的过期时间，或者对消息设置过期时间，取较小的为准。如果消息超过了TTL，会变成死信。
+   
+   arguments = {x-message-ttl: 1000}  1秒
+
+3. 延迟队列
+
+    表示消息延时多久之后发送给消费者，因为rabbitmq没有这个功能，但是可以通过dlx, ttl来实现。先把消息发送到一个普通队列，设置TTL,绑定死信队列，然后不进行消费，等待消息发送到死信队列，消费者绑定死信队列即可。
+
+3. 优先级队列，优先级高的会被先消费，优先级低的后消费。
+
+    arguments = {x-max-priority: 5}
+
+4. 生产者确认
+
+    * 通过事务机制实现
+    * 通过发送方确认（publisher confirm）实现
+
+    1. 事务机制 使用下面三个方法实现：
+        - `channel.txSelect` 开启事务
+        - `channel.txCommit` 提交事务
+        - `channel.txRollback` 事务回滚
+
+    效果好但是性能差，每个请求都开启事务的话服务器性能会严重下降
+
+    2. 发送方确认
+
+        1. 基础方法： 将channel声明为confirm信道 `channle.confirmSelect()`,之后每次发送消息都会带一个唯一的ID，rabbitmq处理之后会发送确认消息返回给生产者。生产者进行等待确认。这样可以保证消息不会丢失，但是性能会下降。相当于同步，每次发一个请求也需要等待。
+
+            ```java
+            try{
+                channel.confirmSelect();
+                channel.basicPublish("exchange", "routingkey", null, "publisher confirm test".getBytes());
+                if (!channel.waitForConfirms()){
+                    System.out.println("send message failed");
+                }
+            } catch (InterruptedException e){
+                e.printStackTrace();
+            }
+                
+
+            ```
+        2. 进阶1： 批量confirm，发送一批方法，调用channel.waitForConfirms()
+            优点：提升confirm性能
+            缺点：如果出现超时或者丢失，需要重新发送。这样会重复的消息数量。如果丢失消息，性能会下降。
+
+        3. 进阶2： 异步confirm。使用`channel.addConfirmListener()`添加回调接口`ConfirmListener`,使用两个方法`handleAck`和`handleNack`来处理basic.ack和basic.nack. 这里会保存一个唯一ID，通过维护一个未确认的消息ID集合来实现异步确认。
+
+            优点：性能高，稳定性好
+            确认：编码复杂
+5. 消费者接受消息，通过轮训把消息分发到所有的消费者中，可以使用qos来指定这个channel上的消费者可以使接受多少个消息同时。
+
+    在一些特殊情况下无法保证消息的顺序性，比如事务出错，消息重发，进入死信等等。
+
+**小结**
+
+    这章主要讲了消息的的可靠性传输。消息的大概步骤就是生产者产生消息，发送到rabbitmq, rabbitmq把消息发个消费者。这个过程中可能会因为网络或者断电等情况丢失数据，需要上述策略来保证数据的完整性。
+
+ 1. 生产者到rabbitmq,可以使用事务，生产者确认来保证消息传输到了rabbitmq。
+ 2. 通过使用durable来持久化交换器、队列和消息，这里可能会路由失败，可以使用mandatory或者备份交换机来保存。
+ 3. 消息从rabbitmq到消费者，可以通过推（订阅发送）和拉（get一条消息）模式。过程中可能会被拒绝或者超时，使用死信队列。 消费者接收到需要手动确认。
+
+
+## rabbitmq管理
