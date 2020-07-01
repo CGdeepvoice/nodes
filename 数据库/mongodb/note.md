@@ -73,6 +73,29 @@ instanceof
     `db.inventory.find( { "instock": { warehouse: "A", qty: 5 } } )` 这里如果warehouse和qty顺序换了则查询失败。
 9. 显示查询结果 `find({}, {_id: 0, name: 1, instock.qty: 1})`
 10. 查询空 null
+
+**文本查询**
+1. 对文本进行查询时候可以先创建文本索引，每个文档只能创建一个文本索引，但是文本索引可以包含多种格式。 
+2. 创建文本索引 `db.mycol.createIndex({name: "text", description: "text"})`
+3. 之后可以使用 $text进行查询，后面的查询条件是或的关系 ： 
+   ```db.mycol.find({$text: {$search: "java coffee shop"}})```
+
+4. 使用$text精准匹配 
+   ```db.mycol.find({$text: {$search: "\"coffee shop\""}})```
+
+5. 排除 coffee
+   ```db.mycol.find({$text: {$search: "java shop -coffee"}})```
+
+6. 根据关联程度进行排序
+
+   ```js
+   db.mycol.find(
+      {$text: {$search: "java coffee shop"}},
+      {score: {$meta: "textScore"}}
+   ).sort({score: {$meta: "textScore"}})
+   ```
+
+
 ### 更新
 1. 更新一个 updateOne
    ```js
@@ -90,3 +113,20 @@ instanceof
 1. deleteOne
 2. deleteMany
 
+
+### 批量操作
+bulkWrite()
+对于插入操作分为有序插入和无序插入，无序插入在分片集合中速度更快，默认是有序插入。使用 orsered: false进行无序插入。
+
+1. 在分片集合中的批量插入的策略
+   1. 预拆分集合
+   2. 进行无序插入
+   3. 避免单调递增的插入 递增的插入，会导致永远只在一个chunk上操作，导致性能和单个chunk差不多，最好保证随机，均衡的放入多个分片上。
+
+
+## 事务
+### 读策略
+这里不只在事务内部，所有的读策略，主要是集群下的读策略，这里放在事务下更清楚
+**readConcern**选项可以进行配置读策略来实现一致性和隔离性
+1. local 直接从实例中返回数据，但是不能保证数据已经被写大多数副本集，可能会回滚。
+2. 
