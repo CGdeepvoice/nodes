@@ -31,6 +31,83 @@
 ## 缩写
 1. v-bind:key == :key  v-bind:[key] == :[key]
 2. v-on:click == @click  `@[event]`
+
+## 计算属性与监听器
+
+```js
+<div id="example">
+    <p>{{ reversedMessage }}</p>
+    <p>{{ reversedMessage2() }}</p>
+</div>
+
+var vm = new Vue({
+    el: "#example",
+    data: {
+        message: "hello"
+    },
+    methods: {
+        reversedMessage2: function(){
+            return this.message.split("").reverse().join("")
+        }
+    },
+    computed: {
+        reversedMessage: function(){
+            return this.message.split("").reverse().join("")
+        }
+    }
+})
+```
+1. 计算属性是computed， 方法是methods, 结果是相同。
+  
+    区别，computed是带缓存的，如果依赖项没有改变不会再次计算。methods是每次都会重新运行
+2. computed setter
+
+    ```js
+    computed: {
+        fullName: {
+            get: function(){
+                return this.firstName + " " + this.lastName
+            },
+            set: function(newValue){
+                var names = newValue.split(' ')
+                this.firstName = names[0]
+                this.lastName = name[names.leng-1]
+            }
+        }
+    }
+    ```
+    当对vm.fullName重新赋值时候调用setter
+
+3. 侦听属性 watch
+    watch来侦听data.property
+    ```js
+    <div id="demo">{{ fullName }}</div>
+    var vm = new Vue({
+        el: '#demo',
+        data: {
+            firstName: 'Foo',
+            lastName: 'Bar',
+            fullName: 'Foo Bar'
+        },
+        watch: {
+            firstName: function (val) {
+            this.fullName = val + ' ' + this.lastName
+            },
+            lastName: function (val) {
+            this.fullName = this.firstName + ' ' + val
+            }
+        }
+    })
+    ```
+
+## class style
+1. 对象     `<div v-bind:class="{ active: isActive }"></div>`
+            `<div v-bind:class="classObject"></div>`
+2. 数组    `<div v-bind:class="[avtiveClass, errorClass]"></div>`
+
+## 条件渲染
+1. v-if v-else-if v-else
+2. v-show  false则设置display=false
 ## 组件
 1.  自定义组件Vue.component
 
