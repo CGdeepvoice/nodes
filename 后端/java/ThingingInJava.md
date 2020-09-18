@@ -246,3 +246,121 @@ public int d（x){
 重载： 同一个东西在不同的地方具有不同的含义
 覆盖： 随时随地都只有一种含义
 ### 7.4 抽象类和方法
+引出抽象类的概念，包含抽象方法的类就是抽象类，子类继承必须实现所有抽象方法，使用abstract关键字
+### 7.5 接口
+接口可以看做”纯“ 抽象类
+类不能多重继承，即a如果extends了b,就不能再继承c了，但可以实现多个接口
+接口的字段默认都是final static的，接口是public, 字段不是接口的一部分，只是保存在接口的static存储区域中
+
+### 7.6 内部类
+一个类定义置于另一个类定义中，就是内部类。
+内部类编译之后也是单独的class文件，内部类分为普通和静态内部类，如果是静态内部类，就是放在一个类里面的一个类而已。如果是普通内部类，则可以访问外部类的成员变量。
+
+### 7.7 构造器和多态
+1. 构造器的调用顺序
+
+    基类的构造器总是在导入类的构造过程中进行调用，并按照继承层次转件向上链接。
+    - 调用基类的构造器，反复递归，从根一直到最底层导出类的基类
+    - 安声明顺序调用成员的初始化方法
+    - 调用导入类构造器的主体
+
+2. 继承与清理
+
+    一般不用手动进行清理，如果确实需要，定义finalize()方法。清理的顺序当然就是和构造顺序相反的，从导入类向上进行清理。
+
+3. 构造器内部的多态方法的行为
+
+    这里讲了一个抽象类构造器调用抽象方法，但是子类对象实例化时候调用的子类的实现方法。
+
+### 小结
+
+什么是多态？多态就是同一个行为，在不同情况下的不同表现形式，比如 Person().eat(), person是抽象类，子类可以是Men,Women, 
+```java
+Person p = new Men(); 
+p.eat(); 
+Person p2 = new Women();
+p.eat();
+```
+同一行为就是eat,但是子类有各自的实现，数据类型在编译期都是person,是一样的。在运行期才会创建子类对象，然后调用时候就会调用子类的行为。这种可以用父类声明子类对象的行为就是**向上转型**，在运行期将方法与对象进行关联的过程就是绑定。这个机制具体怎么实现我还不清楚，应该也是在jvm里实现的。
+
+感想：这本写的倒是不错，就是叙述太啰嗦了，一整章引入一个概念，但又不是很深入，可能我还没到一定境界，读不出书里的真髓吧。后面要加紧时间看完这个去看一下jvm了，这些概念知道了，需要搞清楚具体怎么实现的。翻译的感觉也是一般般，毕竟没读原文这样也不错了。
+
+## 第8章 对象的容纳
+自带的有数组，标准库里有collection，list\set\map，容器就是存放对象的一个容器。
+### 8.1 数组
+数量固定、类型已知，就可以使用数组了。数组里保存的也是对象，对象都是new保存在堆里，数组里保存的就是句柄（指针）。
+数组就是一个简单的线性序列，访问的速度非常快。缺点是创建时候就要申请了固定大小的内存，在使用过程中已知都会持有。而且像扩容，需要申请新的数组，把旧的在复制进去，太麻烦了
+
+### 8.2 集合
+集合大小未知，类型未知，获取内容并强制转换可能会出现错误
+### 8.3 枚举器 Iterator
+iterator可以遍历一系列对象，并选择哪个序列中的每个对象，同时不让客户知道或关注序列的基础结构。iterator也是一个对象.
+他这里讲的不太好，下面扩充一下：
+
+这里有两个接口 iterable 和 iterator, 这里iterator是迭代器
+```java
+public interface Iterator<E> {
+    boolean hasNext();
+    E next();
+    default void remove(){
+        throw new UnsupportedOperationException("remove");
+    }
+    default void forEachRemaining(Consumer<? super E> action){ // 对剩余的进行迭代，next后的结果
+        Objects.requireNonNull(action);
+        while (this.hasNext()){
+            action.accept(this.next());
+        }
+    }
+}
+```
+再看一下iterable的定义
+```java
+public interface Iterable<T>{
+    Iterator<T> iterator();
+    default void forEach(Consumer<? super T> action){
+        Objects.requireNonNull(action);
+        Iterator var2 = this.iterator();
+        while (var2.hasNext()){
+            T t = var2.next();
+            action.accept(t);
+        }
+    }
+    default Spliterator<T> spliterator(){
+        return Spliterators.spliteratorUnknownSize(this.iterator(), 0); 
+    }
+}
+```
+从这里知道了，真正实现迭代的是迭代器Iterator，容器想要实现可迭代就要实现Iterable，而Iterable要求有一个Iterator子类对象，所以容器既要实现Iterable接口，又要实现Iterator接口，并创建返回迭代器子类对象。而且不同的容器实现方式各不相同。
+
+看完来collection家族源码也要提上日程了，而且需要结合设计模式，一个不小的工作量看来
+
+### 8.4 集合的类型
+这里讲了Vector,BitSet, Stack,Hashtable 这种具体的用法还是等用到时候看吧，先看下大概
+
+### 8.5 排序
+自定义sort即可
+### 8.6 通用集合库
+### 8.7 新集合
+这里讲的是java1.2的集合，这里还是看源码好了，它这里有点旧了
+## 第9章 异常控制
+三种：编译错误、运行时错误、逻辑错误
+Throwable异常的根，重要的子类有Exception、Error,其中exception是可以处理的，error是无法处理的
+
+利用try catch finally 进行控制，或者方法后面加throws说明这里不控制，利用throw new 抛出
+
+自定义异常：
+```java
+class MyException extends Exception{
+    public MyException(){}
+    public MyException(String msg){
+        super(msg);
+    }
+}
+```
+
+## 第10章 JavaIO系统
+这里写的不大好，应该单独一片笔记来记录
+
+## 第11章 运行期类型鉴定
+运行期类型鉴定（RTTI），当手上只有一个基础类型的句柄，判断它来判断一个对象的正确类型。
+利用反射机制进行查找。
