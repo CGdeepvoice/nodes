@@ -393,3 +393,13 @@ getFields(), getMethods(), getConstructors()来获取字段，方法和构造器
 克隆： 复写cloneable
 ## 第13章 创建窗口和程序片
 ## 第14章 多线程
+1. 从线程继承，重写run方法， 调用时用start调用
+2. 实现Runnable
+3. 使用线程池 Executor，使用submit提交任务，获取future对象
+使用synchronized共享资源, 对资源进行加锁，一个在读写资源时其他会阻塞
+线程几种状态： 新创建， 就绪， 挂起， 结束
+设置守护进程，后台执行， setDaemon()
+## 第15章 网络编程
+## 第16章 设计范式
+就是设计模式
+## 第17章 项目
