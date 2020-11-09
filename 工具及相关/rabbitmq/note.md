@@ -10,7 +10,7 @@ MQ一般有两种传递模式： 点对点（P2P), 发布/订阅模式（Pub/Sub
 
 ## 消息中间件的作用
 1. 解耦： 通过消息队列可以在两端各自实现接口，通过数据通信，实现自己的业务逻辑。
-2. 冗余： 处理数据过程失败时，消息中间件可以把数据进行持久化直到他们已经被完全处理，规避了数据丢失的风险。在把一个消息从消息中间件中删除之前，需要处理系统明确的支出该消息已经被处理完成，从而确保数据被安全的保存知道使用完毕。
+2. 冗余： 处理数据过程失败时，消息中间件可以把数据进行持久化直到他们已经被完全处理，规避了数据丢失的风险。在把一个消息从消息中间件中删除之前，需要处理系统明确的支出该消息已经被处理完成，从而确保数据被安全的保存直到使用完毕。
 3. 扩展性： 因为消息中间件解耦了应用的处理过程，所以提高消息入队和处理的效率是很容易的，只要另外增加处理过程即可。
 4. 削峰：在访问量剧增的情况下， 应用仍需要继续发挥作用，但是这样的突发流量并不常见。如果以能处理这类峰值作为标准投入资源，无疑是巨大的浪费。使用消息中间件能使关键组件支撑突发访问压力，不会因为突发的超负荷请求而完全崩溃。
 5. 可恢复性： 如果消息处理的进程挂掉了，加入消息队列的消息不会丢失，在系统恢复后进行处理。
@@ -124,12 +124,12 @@ channel.start_consuming()
 
 2. connection channel
    
-   无论生产者还是消费者都需要与RabbitMQ建立连接，一条TCP连接，也就是connection。一旦TCP连接建立，客户端紧接着传建一个AMQP信道，每个信道都会被指派一个唯一的ID。信道是建立在connection上的虚拟连接。rabbitmq处理每条AMQP指令都是通过信道完成的。
+   无论生产者还是消费者都需要与RabbitMQ建立连接，一条TCP连接，也就是connection。一旦TCP连接建立，客户端紧接着创建一个AMQP信道，每个信道都会被指派一个唯一的ID。信道是建立在connection上的虚拟连接。rabbitmq处理每条AMQP指令都是通过信道完成的。
 
    为什么需要信道，因为如果一个应用程序有很多个线程都需要从RabbitMq中消费，或者生产，那么就会建立很多Connecion，也就是TCP连接。TCP连接是昂贵的。rabbitmq采用了NIO的做法，选择TCP连接复用。每个线程把持一个信道，信道复用了TCP连接。同时保证了每个线程的私密性，就像独立的连接一样。
 
 3. 消息持久化：
-   1. acknowledgment，消息确认机制，在回调函数consumer_callback中进行确认，如果为发送确认标识，Rabbitmq会重新将该消息添加到队列中。
+   1. acknowledgment，消息确认机制，在回调函数consumer_callback中进行确认，如果未发送确认标识，Rabbitmq会重新将该消息添加到队列中。
 
     ```python
     # 生产者
@@ -185,105 +185,108 @@ channel.start_consuming()
         这里的持久化只保证了在rabbitmq服务器内部的持久化，如果发送给消费者，但是消费者使用了AutoAck，接收到消息就发送了确认，没来得及处理就丢失了。所以要手动确认。
 
         还有一种情况是持久化消息时，rabbitmq需要将消息从内存保存到磁盘，这个过程如果宕机可能会丢失数据。可以使用镜像队列。配置副本，主节点挂掉使用子节点恢复。
-
+    3. 生产者到borker之间的消息确认
+        1. 可以使用事务机制，使用channel.txSelect(), channel.commit()来实现事务，这样可以保证事务在发送过程中出现问题，消息不会丢失。
+        2. 使用confirm模式，也就是确认机制，发送成功一条消息，borker会发送一个ack给生产者，带有唯一ID。可以使用回调函数来处理成功失败情况。使用channel.confirmSelect()来开启。
 4. 发布与订阅
 
 ![avator](images/rabbitmq交换机工作原理.jpg)
 
 三种工作模式： Fanout, Direct, Topic
 
-   1. fanout  任何发送到fanout exchange的消息都会被转发到与该Exchange绑定的所有queue上
+1. fanout  任何发送到fanout exchange的消息都会被转发到与该Exchange绑定的所有queue上
 
-    ```python
-    # 生产者
-    import pika
-    credentials = pika.PlainCredentials('admin', 'admin')
-    connection  = pika.BlockingConnection(pika.ConnectionParameters('192.168.0.1', 5672, '/', credentials))
-    channel = connecion.channel()
-    # 声明交换器类型
-    channel.exchange_declare(exchange='log_fanout', type='fanout')
-    message='hello world'
-    channel.basic_publish(exchange='log_fangout', routing_key='', body=message)  # routing_key不用配置，配置了也不会生效
-    connection.close()
-    ```
-    ```python
-    # 消费者
-    import pika
-    credentials = pika.PlainCredentials('admin', 'admin')
-    connection = pika.BlockingConnection(pika.ConnectionParameters('192.168.0.1', 5672, '/', credentials))
-    channel = connecion.channel()
 
-    channel.exchange_declare(exchange='log_fanout', type='fanout')
-    # 创建随机队列
-    result = channel.queue_declare(exclusive=True) # exclusive=True表示建立临时队列，当cunsumer关闭后，该队列会被删除。
-    queue_name = result.method.queue
+```python
+# 生产者
+import pika
+credentials = pika.PlainCredentials('admin', 'admin')
+connection  = pika.BlockingConnection(pika.ConnectionParameters('192.168.0.1', 5672, '/', credentials))
+channel = connecion.channel()
+# 声明交换器类型
+channel.exchange_declare(exchange='log_fanout', type='fanout')
+message='hello world'
+channel.basic_publish(exchange='log_fangout', routing_key='', body=message)  # routing_key不用配置，配置了也不会生效
+connection.close()
+```
+```python
+# 消费者
+import pika
+credentials = pika.PlainCredentials('admin', 'admin')
+connection = pika.BlockingConnection(pika.ConnectionParameters('192.168.0.1', 5672, '/', credentials))
+channel = connecion.channel()
 
-    # 将队列与exchange进行绑定
-    channel.queue_bind(exchange='log_fanout', queue=queue_name)
+channel.exchange_declare(exchange='log_fanout', type='fanout')
+# 创建随机队列
+result = channel.queue_declare(exclusive=True) # exclusive=True表示建立临时队列，当cunsumer关闭后，该队列会被删除。
+queue_name = result.method.queue
 
-    def callback(ch, method, properties, body):
-        print(" [x] %r" % body)
-    
-    channel.basic_consume(callback, queue=queue_name, no_ack=True)
-    channel.start_consuming()
-    ```
+# 将队列与exchange进行绑定
+channel.queue_bind(exchange='log_fanout', queue=queue_name)
 
-    2. direct
-    
-    根据routing_key进行分发
-    ![avator](images/direct.png)
+def callback(ch, method, properties, body):
+    print(" [x] %r" % body)
 
-    ```python
-    # 生产者
-    import pika
-    credentials = pika.PlainCredentials('admin', 'admin')
-    connection = pika.BlockingConnection(pika.ConnectionParameters('192.168.0.1', 5672, '/', credentials))
-    channel = connecion.channel()
+channel.basic_consume(callback, queue=queue_name, no_ack=True)
+channel.start_consuming()
+```
 
-    # 定义交换机名称及类型
-    channel.exchange_declare(exchange="direct_test", type='direct')
-    severity = 'info'
-    message = '123'
+2. direct
 
-    # 发布消息至交换机direct_test,且发布的消息携带的关键字routing_key是info
+根据routing_key进行分发
+![avator](images/direct.png)
 
-    channel.basic_publish(exchange='direct_test', routing_key=severity, body=message)
-    connection.close()
-    ```
-    ```python
-    # 消费者
-    import pika
-    credentials = pika.PlainCredentials('admin', 'admin')
-    connection = pika.BlockingConnection(pika.ConnectionParameters('192.168.0.1', 5672, '/', credentials))
-    channel = connecion.channel()
+```python
+# 生产者
+import pika
+credentials = pika.PlainCredentials('admin', 'admin')
+connection = pika.BlockingConnection(pika.ConnectionParameters('192.168.0.1', 5672, '/', credentials))
+channel = connecion.channel()
 
-    # 定义exchange和类型
-    channel.exchange_declare(exchange='direct_test', type='direct')
+# 定义交换机名称及类型
+channel.exchange_declare(exchange="direct_test", type='direct')
+severity = 'info'
+message = '123'
 
-    # 生成随机队列
-    result = channel.queue_declare(exclusive=True)
-    queue_name = result.method.queue
-    severities = ['error', ]
-    for severity in severities:
-        channel.queue_bind(exchange='direct_test', queue=queue_name, routing_key=severity)
+# 发布消息至交换机direct_test,且发布的消息携带的关键字routing_key是info
 
-    def callback(ch, method, properties, body):
-        print("[x] %r:%r"%(method.routing_key, body))
-    channel.basic_consume(callback, queue=queue_name, no_ask=True)
-    channel.start_consuming()
-    ```
+channel.basic_publish(exchange='direct_test', routing_key=severity, body=message)
+connection.close()
+```
+```python
+# 消费者
+import pika
+credentials = pika.PlainCredentials('admin', 'admin')
+connection = pika.BlockingConnection(pika.ConnectionParameters('192.168.0.1', 5672, '/', credentials))
+channel = connecion.channel()
 
-    3. topic
-    ```python
-    channel.exchange_declare(exchange_name, exchange_type="topic")
-    channel.queue_declare(queue_name, durable=True)
-    topics = ['user.add.test', 'user.update.test',]
-    for topic in topics:
-        channel.queue_bind(queue_name, exchange_name, routing_key=topic)
-    channel.basic_qos(prefetch_count=1) # 如果没有确认信息时，将不再向这里投递信息
-    channel.basic_consume(queue_name, callback)
-    channel.start_consume()
-    ```
+# 定义exchange和类型
+channel.exchange_declare(exchange='direct_test', type='direct')
+
+# 生成随机队列
+result = channel.queue_declare(exclusive=True)
+queue_name = result.method.queue
+severities = ['error', ]
+for severity in severities:
+    channel.queue_bind(exchange='direct_test', queue=queue_name, routing_key=severity)
+
+def callback(ch, method, properties, body):
+    print("[x] %r:%r"%(method.routing_key, body))
+channel.basic_consume(callback, queue=queue_name, no_ask=True)
+channel.start_consuming()
+```
+
+3. topic
+```python
+channel.exchange_declare(exchange_name, exchange_type="topic")
+channel.queue_declare(queue_name, durable=True)
+topics = ['user.add.test', 'user.update.test',]
+for topic in topics:
+    channel.queue_bind(queue_name, exchange_name, routing_key=topic)
+channel.basic_qos(prefetch_count=1) # 如果没有确认信息时，将不再向这里投递信息
+channel.basic_consume(queue_name, callback)
+channel.start_consume()
+```
 
 ## AMQP协议介绍
 
