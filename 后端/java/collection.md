@@ -164,7 +164,8 @@ default void sort(Comparator<? super E> c) {
 
     如果有两个线程A,B, A负责遍历list, B负责修改list,则A在遍历的过程中会比较expectedModCount = modCount=N，如果不相等就报错。如果B增加或删除一个元素，modCount会变化，A就会报错。
 
-2. `public ListIterator<E> listIterator(final int index) {rangeCheckForAdd(index);return new ListItr(index);}` 另一个迭代器，这个迭代器和上面的差不多，新增了向前遍历，继承自ListIterator
+2. `public ListIterator<E> listIterator(final int index) {rangeCheckForAdd(index);return new ListItr(index);}` 另一个迭代器，这个迭代器和上面的差不多，新增了向前遍历，继承自Itr,实现了ListIterator
+3. 定义了内部类，`SubList<E>`,继承了AbstractList,可以通过fromIndex和toIndex来控制用户可以操作的范围，从而实现了子列表
 
 # 部分源码算法分析
 
