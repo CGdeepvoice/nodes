@@ -1,0 +1,2 @@
+## LinkedHashMap
+LinkedHashMap是HashMap的子类, LinkedHashMap还维护了一个双向链表，以保证通过Iterator遍历时顺序与插入顺序一致。
